@@ -1,35 +1,35 @@
-rule merge:
+rule tc_long_stranded:
     input:
-        spi="{dir}/outPooled/tc.long.spi.bed.gz",
-        short="{dir}/outPooled/tc.short.bed.gz",
-        fwd="{dir}/outPooled/ctssTotalCounts.fwd.bw",
-        rev="{dir}/outPooled/ctssTotalCounts.rev.bw",
+        tc="{dir}/outPooled/tc.long.spi.bed.gz",
+        bw="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
+    params:
+        color=lambda wildcards: '255,0,0' if strand == "fwd" else '0,0,255',
+        sign=lambda wildcards: '+' if strand == "fwd" else '-'
     output:
-        spi="{dir}/outPooled/tc.spi.merged.bed.gz"
+        bed="{dir}/outPooled/tc.long.spi.{strand}.bed.gz"
     shell:
         """
-        # forward strand long
-        gunzip -c {input.spi} | \
-        grep -v ^# | \
-        awk '{{if($6=="+"){{print}}}}' | \
-        awk 'BEGIN{{OFS="\\t"}}{{print $1,$2,$3, $1":"$2".."$3","$4, 1000,$6}}' | \
-        scripts/bed2peakBed9.sh \
-            -b {input.fwd} \
-            -c "255,0,0" \
-        > {output.spi}.tmp
-        # reverse strand long
-        gunzip -c {input.spi} | \
-        grep -v ^# | \
-        awk '{{if($6=="-"){{print}}}}' | \
-        awk 'BEGIN{{OFS="\\t"}}{{print $1,$2,$3, $1":"$2".."$3","$4, 1000,$6}}' | \
-        scripts/bed2peakBed9.sh \
-            -b {input.rev} \
-            -c "255,0,0" \
-        >> {output.spi}.tmp
-        # combined strands short
-        gunzip -c {input.short} >> {output.spi}.tmp
-        sort -k1,1 -k2,2n {output.spi}.tmp | \
-        awk 'BEGIN{{OFS="\\t"}}{{print $0,1,$3-$2",",0","}}' | \
-        gzip -c > {output.spi}
-        rm -f {output.spi}.tmp
+        scripts/tc_to_bedPeak.sh \
+            -l {input.tc} \
+            -b {input.bw} \
+            -c {params.color} \
+            -s {params.sign} \
+            -o {output.bed}
         """
+
+rule tc_merge:
+    input:
+        fwd="{dir}/outPooled/tc.long.spi.fwd.bed.gz",
+        rev="{dir}/outPooled/tc.long.spi.rev.bed.gz",
+        short="{dir}/outPooled/tc.short.bed.gz",
+    output:
+        merged="{dir}/outPooled/tc.spi.merged.bed.gz"
+    shell:
+        """
+        scripts/merge_simple.sh \
+            -s {input.short} \
+            -f {input.fwd} \
+            -r {input.rev} \
+            -o {output.merged}
+        """
+
