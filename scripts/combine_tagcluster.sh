@@ -11,7 +11,7 @@ EOF
   exit 1;
 }
 
-while getopts m:t:c:d:s:o: opt; do
+while getopts f:r:o: opt; do
   case ${opt} in
   f) fwd=${OPTARG};;
   r) rev=${OPTARG};;
