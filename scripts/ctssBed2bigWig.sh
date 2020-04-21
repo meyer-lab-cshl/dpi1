@@ -24,7 +24,9 @@ if [ "${infile}" = "" ]; then usage; fi
 if [ "${outprefix}" = "" ]; then usage; fi
 if [ "${genome}" = "" ]; then usage; fi
 
-
+echo "infile: $infile"
+echo "outprefix: $outprefix"
+echo "genome: $genome"
 
 
 fwd=${outprefix}.fwd.bw
@@ -35,23 +37,46 @@ tmpfile_g=${outprefix}.tmp_g
 sort ${genome} > ${tmpfile_g}
 
 ### fwd
-gunzip -c ${infile} \
-| grep ^chr \
-| grep +$ \
-| awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$5}' \
-| sort -k1,1 -k2,2n \
-> ${tmpfile} 
+if file --mime-type "$infile" | grep -q gzip; then
+#if [[ $infile =~ .*gz ]]; then
+    echo "input file is gz"
+    gunzip -c ${infile} \
+    | grep ^chr \
+    | grep +$ \
+    | awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$5}' \
+    | sort -k1,1 -k2,2n \
+    > ${tmpfile}
 
-bedGraphToBigWig ${tmpfile} ${tmpfile_g} ${fwd}
+    bedGraphToBigWig ${tmpfile} ${tmpfile_g} ${fwd}
 
-### rev
-gunzip -c ${infile} \
-| grep ^chr \
-| grep -v +$ \
-| awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$5}' \
-| sort -k1,1 -k2,2n \
-> ${tmpfile} 
-bedGraphToBigWig ${tmpfile} ${tmpfile_g} ${rev}
+    ### rev
+    gunzip -c ${infile} \
+    | grep ^chr \
+    | grep -v +$ \
+    | awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$5}' \
+    | sort -k1,1 -k2,2n \
+    > ${tmpfile}
+    bedGraphToBigWig ${tmpfile} ${tmpfile_g} ${rev}
+else
+    echo "input file is unzipped"
+    cat ${infile} \
+    | grep ^chr \
+    | grep +$ \
+    | awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$5}' \
+    | sort -k1,1 -k2,2n \
+    > ${tmpfile}
+
+    bedGraphToBigWig ${tmpfile} ${tmpfile_g} ${fwd}
+
+    ### rev
+    cat ${infile} \
+    | grep ^chr \
+    | grep -v +$ \
+    | awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$5}' \
+    | sort -k1,1 -k2,2n \
+    > ${tmpfile}
+    bedGraphToBigWig ${tmpfile} ${tmpfile_g} ${rev}
+fi
 
 rm -f ${tmpfile}
 rm -f ${tmpfile_g}

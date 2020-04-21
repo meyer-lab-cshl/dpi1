@@ -28,7 +28,7 @@ if [ "${bw}" = "" ]; then usage; fi
 if [ "${color}" = "" ]; then usage; fi
 if [ "${noise_subtraction_ratio}" = "" ]; then usage; fi
 
-awk --assign bw=${bw} --assign color=${color} --assign noise_subtraction_ratio=${noise_subtraction_ratio} \
+awk -v bw=${bw} -v color=${color} -v noise_subtraction_ratio=${noise_subtraction_ratio} \
 'BEGIN{OFS="\t"}{
 
   chrom = $1; start = $2; stop = $3; name = $4; score = $5; strand = $6;

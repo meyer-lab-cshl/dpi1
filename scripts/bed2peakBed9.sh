@@ -24,7 +24,7 @@ done
 if [ "${bw}" = "" ]; then usage; fi
 if [ "${color}" = "" ]; then usage; fi
 
-awk --assign bw=${bw} --assign color=${color} 'BEGIN{OFS="\t"}{
+awk -v bw=${bw} -v color=${color} 'BEGIN{OFS="\t"}{
   chrom = $1
   start = $2
   stop  = $3
