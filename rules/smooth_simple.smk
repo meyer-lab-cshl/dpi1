@@ -17,6 +17,7 @@ rule smoothing:
             --window {params.window} \
             --length {params.length} \
             --ratio {params.ratio} \
-            --outfile {output.spi} \
+            --outfile {wildcards.dir}/outPooled/tc.long.spi.bed \
             --analysis spi
+        gzip {wildcards.dir}/outPooled/tc.long.spi.bed
         """
