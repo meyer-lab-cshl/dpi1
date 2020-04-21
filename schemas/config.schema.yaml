@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+  directory:
+    type: string
+  analysis:
+    type: string
+  genome:
+    type: string
+
+  cluster:
+    type: object
+    properties:
+      dist:
+        type: integer
+      ctss_max_counts:
+        type: integer
+    required:
+      - dist
+      - ctss_max_counts
+
+  decomposition:
+    type: object
+    properties:
+      noise_subtraction_ratio:
+        type: integer
+      length:
+        type: integer
+      count:
+        type: integer
+      n_comp_upper_bound:
+        type: integer
+    required:
+      - noise_subtraction_ratio
+      - length
+      - count
+      - n_comp_upper_bound
+
+  smoothing:
+    type: object
+    properties:
+      gaussian_window_size_half:
+        type: integer
+    required:
+      - gaussian_window_size_half
+
+  cutoff:
+    type: object
+    properties:
+      permissive:
+        type: integer
+      robust:
+        type: integer
+      tpm:
+        type: integer
+    required:
+      - permissive
+      - robust
+      - tpm
+
+required:
+  - directory
+  - analysis
+  - genome
+  - cluster
+  - decomposition
+  - smoothing
+  - cutoff
