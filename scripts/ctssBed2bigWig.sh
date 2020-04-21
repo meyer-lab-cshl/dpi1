@@ -5,7 +5,13 @@
 function usage()
 {
   cat <<EOF
-usage: $0 -i INFILE.ctss.bed -o OUT_PREFIX -g GENOME
+usage: $0
+          [ -i INFILE.ctss.bed|INFILE.ctss.bed.gz;
+                full path to ctss files in bed format, optionally gzipped]
+          [ -o OUT_PREFIX;
+                full path prefix to output files ]
+          [ -g GENOME;
+                full path the genome file as obtained in bedtools/genomes ]
 EOF
   exit 1;
 }
@@ -38,7 +44,6 @@ sort ${genome} > ${tmpfile_g}
 
 ### fwd
 if file --mime-type "$infile" | grep -q gzip; then
-#if [[ $infile =~ .*gz ]]; then
     echo "input file is gz"
     gunzip -c ${infile} \
     | grep ^chr \

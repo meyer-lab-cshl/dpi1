@@ -3,11 +3,12 @@
 function usage()
 {
   cat <<EOF
-  echo "Usage: $0 [ -f ctssMaxCounts_fwd ]
-                  [ -r ctssMaxCounts_rev ]
-                  [ -c threshold_counts ]
-                  [ -g smoothed_tag_cluster_file ]
-                  [ -o output_file ]"
+Usage: $0
+        [ -f ctssMaxCounts_fwd ]
+        [ -r ctssMaxCounts_rev ]
+        [ -c threshold_counts ]
+        [ -g smoothed_tag_cluster_file ]
+        [ -o output_file ]"
 
 EOF
   exit 1;
