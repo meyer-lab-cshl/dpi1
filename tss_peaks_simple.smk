@@ -13,11 +13,11 @@ SAMPLE, = glob_wildcards("/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/{sample
 ##### target rules #####
 def get_input(wildcards):
     if config["analysis"] == "spi":
-        robust = "{pdir}/outPooled/tc.spi_merged.ctssMaxCounts{robust}_ctssMaxTpm{tpm}.bed.gz".format(
+        robust = "{pdir}/outPooled/tc.spi.merged.ctssMaxCounts{robust}.ctssMaxTpm{tpm}.bed.gz".format(
             pdir=config['directory'],
             robust=config['cutoff']['robust'],
             tpm=config['cutoff']['tpm'])
-        permissive = "{pdir}/outPooled/tc.spi_merged.ctssMaxCounts{permissive}.bed.gz".format(
+        permissive = "{pdir}/outPooled/tc.spi.merged.ctssMaxCounts{permissive}.bed.gz".format(
             pdir=config['directory'],
             permissive=config['cutoff']['permissive'])
     return [robust, permissive]
