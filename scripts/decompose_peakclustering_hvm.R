@@ -1,13 +1,14 @@
-
+#################
+## libraries ####
+#################
+library(optparse)
 source("scripts/myFastICA.R")
 
-infile_base <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/tmp/outPooled/tc.long.bed.gz"
-infile_ctss_pref <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/tmp/outPooled/ctssTotalCounts"
-gaussian_window_size_half <- 5
-length_to_decompose <- 50
-noise_subtraction_ratio <- 0.1
 
 
+#################
+## functions ####
+#################
 peakClustersDecomposedCtss <- function(ica, gaussian_window_size_half = 20,
                                        bedLine = matrix(NA, ncol = 0,
                                                         nrow = 0)) {
@@ -96,7 +97,7 @@ peakClusters <- function(bedTable, gaussian_window_size_half = 20,
     rep(0, gaussian_window_size_half)
   )
   vec.padding.smooth <- filter(
-    ec.padding,
+    vec.padding,
     dnorm(seq(-2, 2, by = (2 / gaussian_window_size_half)))
   )
   cutoff <- max(median(vec.padding.smooth, na.rm = TRUE), 3)
@@ -189,7 +190,7 @@ getCtssCounts <- function(bedLine, infile_ctss, force_strandedness = TRUE,
   if (is.na(strand)) {
     return(c())
   }
-  if ((force_strandedness == T) && (strand != bedLine$strand)) {
+  if ((force_strandedness) && (strand != bedLine$strand)) {
     return(c())
   }
   command <- sprintf(
@@ -202,7 +203,7 @@ getCtssCounts <- function(bedLine, infile_ctss, force_strandedness = TRUE,
     return(c())
   }
   res <- t(sapply(res, function(str) strsplit(str, "\t")[[1]]))
-  res <- as.data.frame(res, stringsAsFactors = F)
+  res <- as.data.frame(res, stringsAsFactors = FALSE)
   for (i in c(2, 3, 4)) {
     res[, i] <- as.numeric(res[, i])
   }
@@ -246,53 +247,6 @@ getCtssCounts <- function(bedLine, infile_ctss, force_strandedness = TRUE,
   res
 }
 
-getCtssCountsTable_old <- function(bedLine, infiles, noise_subtraction_ratio) {
-  j <- 1
-  buf <- getCtssCounts(bedLine, infiles[j],
-    force_strandedness = TRUE,
-    noise_subtraction_ratio = noise_subtraction_ratio
-  )
-  while (length(buf) == 0) {
-    j <- j + 1
-    buf <- getCtssCounts(bedLine, infiles[j],
-      force_strandedness = TRUE,
-      noise_subtraction_ratio = noise_subtraction_ratio
-    )
-  }
-  tmp <- buf[, "score", drop = FALSE]
-  rownames(tmp) <- buf[, "name"]
-  colnames(tmp) <- infiles[j]
-  tbl <- tmp
-
-  if (length(infiles) == j) {
-    return(tbl)
-  }
-
-  for (i in (j + 1):length(infiles)) {
-    buf <- getCtssCounts(bedLine, infiles[i],
-      force_strandedness = TRUE,
-      noise_subtraction_ratio = noise_subtraction_ratio
-    )
-    if (length(buf) == 0) {
-      next
-    }
-    tmp <- buf[, "score", drop = FALSE]
-    rownames(tmp) <- buf[, "name"]
-    colnames(tmp) <- infiles[i]
-    rows <- unique(c(rownames(tbl), rownames(tmp)))
-    cols <- unique(c(colnames(tbl), colnames(tmp)))
-    tbl.new <- data.frame(matrix(0, nrow = length(rows), ncol = length(cols)))
-    rownames(tbl.new) <- rows
-    colnames(tbl.new) <- c(colnames(tbl), infiles[i])
-    tbl.new[rownames(tbl), colnames(tbl)] <- tbl
-    tbl.new[rownames(tmp), colnames(tmp)] <- tmp
-    tbl <- tbl.new
-  }
-  tbl <- tbl[rowSums(tbl) != 0, 1:ncol(tbl), drop = FALSE]
-  tbl <- tbl[, colSums(tbl) != 0, drop = F]
-  tbl
-}
-
 getCtssCountsTable <- function(bedLine, infiles, noise_subtraction_ratio = 0) {
   # prep
   tbl <- c()
@@ -300,7 +254,7 @@ getCtssCountsTable <- function(bedLine, infiles, noise_subtraction_ratio = 0) {
   tmplist <- sprintf("%s/list.txt", tmpdir)
   tmpmat <- sprintf("%s/mat.txt", tmpdir)
   command <- sprintf(
-    "./scripts/getCtssCountsTable.sh -c %s -s %s -e %s -i %s > %s",
+    "scripts/getCtssCountsTable.sh -c %s -s %s -e %s -i %s > %s",
     bedLine$chrom, bedLine$start, bedLine$stop, tmplist, tmpmat, tmpmat
   )
   if (bedLine$strand == "+") {
@@ -308,13 +262,11 @@ getCtssCountsTable <- function(bedLine, infiles, noise_subtraction_ratio = 0) {
   } else if (bedLine$strand == "-") {
     infiles <- infiles[grep(".rev.bw$", infiles)]
   } else {
-    print(sprintf("ERROR: wrong strand:%s", bedLine$strand))
-    q()
+    stop(sprintf("ERROR: wrong strand:%s", bedLine$strand))
   }
 
   # main
-  tryCatch(
-    {
+  tryCatch({
       write.table(infiles, quote = FALSE, row.names = FALSE, col.names = FALSE,
                   file = tmplist)
       system(command, intern = TRUE)
@@ -323,7 +275,8 @@ getCtssCountsTable <- function(bedLine, infiles, noise_subtraction_ratio = 0) {
       rownames(tbl) <- paste(rownames(tbl), bedLine$strand, sep = ",")
       system(sprintf("rm -rf %s", tmpdir))
     },
-    finally = system(sprintf("rm -rf %s", tmpdir))
+    #finally = system(sprintf("rm -rf %s", tmpdir))
+    finally=TRUE
   )
 
   # post processing
@@ -336,108 +289,165 @@ getCtssCountsTable <- function(bedLine, infiles, noise_subtraction_ratio = 0) {
   tbl
 }
 
-
-
 peakClustersFromCtssVec_print <- function(ctss, gaussian_window_size_half,
-                                          bedLine) {
+                                          bedLine, outfile) {
   ctss <- rowSums(ctss)
-  res <- peakClustersFromCtssVec(
-    ctss,
-    gaussian_window_size_half = gaussian_window_size_half,
-    bedLine = bedLine
-  )
+  res <- peakClustersFromCtssVec(ctss,
+                                 gaussian_window_size_half=
+                                   gaussian_window_size_half,
+                                 bedLine = bedLine)
   if (is.null(dim(res))) {
-    write.table(bedLine, sep = "\t", quote = FALSE, row.names = FALSE,
-                col.names = FALSE)
+    write.table(bedLine, file=outfile, sep = "\t", quote = FALSE,
+                row.names = FALSE, col.names = FALSE, append=TRUE)
   } else {
-    write.table(res, sep = "\t", quote = FALSE, row.names = FALSE,
-                col.names = FALSE)
+    write.table(res, file=outfile, sep = "\t", quote = FALSE, row.names = FALSE,
+                col.names = FALSE, append=TRUE)
   }
 }
 
+############
+## data ####
+############
 
-main_spi <- function(infile_base,
-                     infile_ctss_pref,
-                     gaussian_window_size_half,
-                     length_to_decompose,
-                     noise_subtraction_ratio,
-                     verbose = TRUE) {
-  base <- read.table(infile_base, sep = "\t", as.is = TRUE, nrow = -1)
+## command line arguments ####
+option_list <- list(
+  make_option(c("-a", "--analysis"), action="store",
+              dest="analysis",
+              type="character", help="Type of analysis: spi | dpi
+              [default: %default].", default='spi'),
+  make_option(c("-o", "--outfile"), action="store",
+              dest="outfile",
+              type="character", help="Path the output file [default: %default].",
+              default=NULL),
+  make_option(c("-c", "--tagclusters"), action="store",
+              dest="tagclusters",
+              type="character", help="Path to file with tag clusters to be
+              decomposed; in `bed.gz` format [default: %default].",
+              default=NULL),
+  make_option(c("-p", "--ctssprefix"), action="store",
+              dest="ctssprefix",
+              type="character", help="Prefix of individual bed.gz files with
+              transcription start sites [default: %default].",
+              default=NULL),
+  make_option(c("-w", "--window"), action="store",
+              dest="window", type="numeric",
+              help="Gaussian window size (0.5) [default: %default].",
+              default=5),
+  make_option(c("-l", "--length"), action="store",
+              dest="length", type="integer",
+              help="Cluster length to decompose [default: %default].",
+              default=50),
+  make_option(c("-r", "--ratio"), action="store",
+              dest="length", type="numeric",
+              help="Noise substraction ratio [default: %default].",
+              default=0.1),
+  make_option(c("--showProgress"), action="store_true",
+              dest="verbose",
+              default=FALSE, type="logical", help="If set, progress messages
+                about analyses are printed to standard out ",
+              "[default: %default]."),
+  make_option(c("--debug"), action="store_true",
+              dest="debug", default=FALSE, type="logical",
+              help="If set, predefined arguments are used to test the script",
+              "[default: %default].")
+)
+
+args <- parse_args(OptionParser(option_list=option_list))
+if (args$debug) {
+    args <- list()
+    args$outfile <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.spi.bed.gz"
+    args$tagclusters <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.bed.gz"
+    args$ctssprefix <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/ctssTotalCounts"
+    args$window <- 5
+    args$length <- 50
+    args$ratio <- 0.1
+    args$verbose <- TRUE
+    args$analysis <- 'spi'
+}
+################
+## analysis ####
+################
+
+if (args$analysis == "spi") {
+  if (file.exists(args$outfile)) file.remove(args$outfile)
+  base <- read.table(args$tagclusters, sep = "\t", as.is = TRUE, nrow = -1)
   colnames(base) <- c("chrom", "start", "stop", "name", "score", "strand")
 
   infile_ctss <- c(
-    sprintf("%s.fwd.bw", infile_ctss_pref),
-    sprintf("%s.rev.bw", infile_ctss_pref)
+    sprintf("%s.fwd.bw", args$ctssprefix),
+    sprintf("%s.rev.bw", args$ctssprefix)
   )
 
   for (i in 1:nrow(base)) {
+    cat(i, "\n")
     bedLine <- base[i, ]
-    if ((bedLine$stop - bedLine$start) < length_to_decompose) {
-      write.table(bedLine, sep = "\t", quote = FALSE, row.names = FALSE,
-                  col.names = FALSE)
+    if ((bedLine$stop - bedLine$start) < args$length) {
+      write.table(bedLine, file=args$outfile, sep = "\t", quote = FALSE,
+                  row.names = FALSE, col.names = FALSE, append=TRUE)
       next
     }
-    if (verbose) {
+    if (args$verbose) {
       cat("#", paste(bedLine, collapse = "\t"), "\n")
     }
-    ctss <- getCtssCountsTable(bedLine, infile_ctss, noise_subtraction_ratio)
-    peakClustersFromCtssVec_print(ctss, gaussian_window_size_half, bedLine)
+    ctss <- getCtssCountsTable(bedLine, infile_ctss, args$ratio)
+    peakClustersFromCtssVec_print(ctss, args$window, bedLine, args$outfile)
   }
-}
+} else if (args$analysis == "dpi") {
+  main_dpi <- function(infile_base, path, pattern, exclude_prefix = NA,
+                       gaussian_window_size_half = 20,
+                       n.comp.upper_bound = Inf,
+                       length_to_decompose = 200,
+                       noise_subtraction_ratio = 0,
+                       verbose = TRUE) {
+    infile_ctss <- dir(path = path, pattern = pattern, full.names = TRUE)
 
-
-main_dpi <- function(infile_base, path, pattern, exclude_prefix = NA,
-                     gaussian_window_size_half = 20,
-                     n.comp.upper_bound = Inf,
-                     length_to_decompose = 200,
-                     noise_subtraction_ratio = 0,
-                     verbose = TRUE) {
-  infile_ctss <- dir(path = path, pattern = pattern, full.names = TRUE)
-
-  ### special file exclusion
-  if (!is.na(exclude_prefix)) {
-    infile_ctss <- grep(exclude_prefix, infile_ctss, value = TRUE,
-                        invert = TRUE)
-  }
-
-  base <- read.table(infile_base, sep = "\t", as.is = TRUE, nrow = -1)
-
-  colnames(base) <- c("chrom", "start", "stop", "name", "score", "strand")
-
-  for (i in 1:nrow(base)) {
-    bedLine <- base[i, ]
-    if (verbose) {
-      cat("#", paste(bedLine, collapse = "\t"), "\n")
+    ### special file exclusion
+    if (!is.na(exclude_prefix)) {
+      infile_ctss <- grep(exclude_prefix, infile_ctss, value = TRUE,
+                          invert = TRUE)
     }
-    if ((bedLine$stop - bedLine$start) < length_to_decompose) {
-      write.table(bedLine, sep = "\t", quote = FALSE, row.names = FALSE,
-                  col.names = FALSE)
-      next
-    }
-    ctss <- getCtssCountsTable(bedLine, infile_ctss,
-      noise_subtraction_ratio = noise_subtraction_ratio
-    )
-    ica <- myFastICA(ctss,
-      verbose = verbose,
-      n.comp.upper_bound = n.comp.upper_bound
-    )
 
-    if (length(ica) == 0) {
-      peakClustersFromCtssVec_print(ctss, gaussian_window_size_half, bedLine)
-    } else {
-      res <- peakClustersDecomposedCtss(
-        ica,
-        gaussian_window_size_half = gaussian_window_size_half,
-        bedLine
+    base <- read.table(infile_base, sep = "\t", as.is = TRUE, nrow = -1)
+
+    colnames(base) <- c("chrom", "start", "stop", "name", "score", "strand")
+
+    for (i in 1:nrow(base)) {
+      bedLine <- base[i, ]
+      if (verbose) {
+        cat("#", paste(bedLine, collapse = "\t"), "\n")
+      }
+      if ((bedLine$stop - bedLine$start) < length_to_decompose) {
+        write.table(bedLine, file=args$outfile, sep = "\t", quote = FALSE,
+                    row.names = FALSE, col.names = FALSE)
+        next
+      }
+      ctss <- getCtssCountsTable(bedLine, infile_ctss,
+        noise_subtraction_ratio = noise_subtraction_ratio
       )
-      if (is.null(dim(res))) {
+      ica <- myFastICA(ctss,
+        verbose = verbose,
+        n.comp.upper_bound = n.comp.upper_bound
+      )
+
+      if (length(ica) == 0) {
         peakClustersFromCtssVec_print(ctss, gaussian_window_size_half, bedLine)
       } else {
-        write.table(res, sep = "\t", quote = FALSE, row.names = FALSE,
+        res <- peakClustersDecomposedCtss(
+          ica,
+          gaussian_window_size_half = gaussian_window_size_half,
+          bedLine
+        )
+        if (is.null(dim(res))) {
+          peakClustersFromCtssVec_print(ctss, gaussian_window_size_half, bedLine)
+        } else {
+          write.table(res, sep = "\t", quote = FALSE, row.names = FALSE,
+                      col.names = FALSE)
+        }
+        write.table(ica$rescaleS, sep = "\t", quote = FALSE, row.names = FALSE,
                     col.names = FALSE)
       }
-      write.table(ica$rescaleS, sep = "\t", quote = FALSE, row.names = FALSE,
-                  col.names = FALSE)
     }
   }
+} else {
+  stop ("Analysis type", args$analysis, "not found, has to be spi or dpi")
 }
