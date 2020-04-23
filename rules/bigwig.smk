@@ -5,6 +5,8 @@ rule prepare_bigwig_counts:
     output:
         "{dir}/outCounts/{sample}.ctss.fwd.bw",
         "{dir}/outCounts/{sample}.ctss.rev.bw"
+    conda:
+        "../envs/bigwig.yaml"
     shell:
         """
         scripts/ctssBed2bigWig.sh \
@@ -20,6 +22,8 @@ rule prepare_bigwig_tpm:
     output:
         "{dir}/outTpm/{sample}.ctss.fwd.bw",
         "{dir}/outTpm/{sample}.ctss.rev.bw"
+    conda:
+        "../envs/bigwig.yaml"
     shell:
         """
         scripts/ctssBed2TpmBigWig.sh \

@@ -5,6 +5,8 @@ rule decomposition_short_stranded:
         genome=config["genome"]
     output:
         bw="{dir}/outPooled/tc.short.{strand}.bed",
+    conda:
+        "../envs/decomposition.yaml"
     params:
         length=config["decomposition"]["length"],
         count=config["decomposition"]["count"],

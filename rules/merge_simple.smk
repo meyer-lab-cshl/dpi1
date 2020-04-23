@@ -2,11 +2,13 @@ rule tc_long_stranded:
     input:
         tc="{dir}/outPooled/tc.long.spi.bed.gz",
         bw="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
+    output:
+        bed="{dir}/outPooled/tc.long.spi.{strand}.bed.gz"
+    conda:
+        "../envs/merge_simple.yaml"
     params:
         color=lambda wildcards: '255,0,0' if wildcards.strand == "fwd" else '0,0,255',
         sign=lambda wildcards: '+' if wildcards.strand == "fwd" else '-'
-    output:
-        bed="{dir}/outPooled/tc.long.spi.{strand}.bed.gz"
     shell:
         """
         scripts/tc_to_bedPeak.sh \

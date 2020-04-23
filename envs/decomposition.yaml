@@ -1,0 +1,8 @@
+name: decomposition
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - ucsc-bigwigtobedgraph
+  - r-tidyr

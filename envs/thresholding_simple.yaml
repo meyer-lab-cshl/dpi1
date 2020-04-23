@@ -1,0 +1,8 @@
+name: merge-simple
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - ucsc-bigwigtobedgraph
+  - bedtools

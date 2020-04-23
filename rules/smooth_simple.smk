@@ -5,6 +5,8 @@ rule smoothing:
         rev="{dir}/outPooled/ctssTotalCounts.rev.bw",
     output:
         spi="{dir}/outPooled/tc.long.spi.bed.gz"
+    conda:
+        "../envs/smooth_simple.yaml"
     params:
         length=config["decomposition"]["length"],
         ratio=config["decomposition"]["noise_subtraction_ratio"],

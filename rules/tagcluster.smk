@@ -4,6 +4,8 @@ rule prepare_tagcluster:
         max_counts="{dir}/outPooled/ctssMaxCounts.{strand}.bw",
     output:
         tc="{dir}/outPooled/tc.{strand}.bed"
+    conda:
+        "../envs/tagcluster.yaml"
     wildcard_constraints:
         strand="fwd|rev"
     params:

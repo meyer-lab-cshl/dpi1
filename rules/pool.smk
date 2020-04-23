@@ -6,6 +6,8 @@ rule pool_ctss_total_counts:
         genome=config["genome"]
     output:
         total="{dir}/outPooled/ctssTotalCounts.{strand}.bw"
+    conda:
+        "../envs/pool.yaml"
     shell:
         """
         bigWigMerge {wildcards.dir}/outCounts/*{wildcards.strand}.bw /dev/stdout | \
@@ -23,6 +25,8 @@ rule pool_ctss_max_counts:
         genome=config["genome"]
     output:
         max="{dir}/outPooled/ctssMaxCounts.{strand}.bw"
+    conda:
+        "../envs/pool.yaml"
     shell:
         """
         bigWigMerge -max {wildcards.dir}/outCounts/*{wildcards.strand}.bw /dev/stdout | \
@@ -40,6 +44,8 @@ rule pool_ctss_max_tpm:
         genome=config["genome"]
     output:
         max="{dir}/outPooled/ctssMaxTpm.{strand}.bw"
+    conda:
+        "../envs/pool.yaml"
     shell:
         """
         bigWigMerge -max {wildcards.dir}/outTpm/*{wildcards.strand}.bw /dev/stdout | \

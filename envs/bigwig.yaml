@@ -1,0 +1,8 @@
+name: bigwig
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - ucsc-bedgraphtobigwig
+

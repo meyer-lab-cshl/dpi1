@@ -1,0 +1,10 @@
+name: smooth
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - ucsc-bigwigtobedgraph
+  - r-tidyr
+  - r-optparse
+  - r-fastica

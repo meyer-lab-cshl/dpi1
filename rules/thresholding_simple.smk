@@ -5,6 +5,8 @@ rule permissive:
         spi="{dir}/outPooled/tc.spi.merged.bed.gz"
     output:
         spi="{dir}/outPooled/tc.spi.merged.ctssMaxCounts{counts}.bed.gz"
+    conda:
+        "../envs/thresholding_simple.yaml"
     wildcard_constraints:
         counts="\d+"
     shell:
@@ -26,6 +28,8 @@ rule robust:
         spi="{dir}/outPooled/tc.spi.merged.bed.gz",
     output:
         spi="{dir}/outPooled/tc.spi.merged.ctssMaxCounts{counts}.ctssMaxTpm{tpm}.bed.gz"
+    conda:
+        "../envs/thresholding_simple.yaml"
     wildcard_constraints:
         counts="\d+",
         tpm="\d+"

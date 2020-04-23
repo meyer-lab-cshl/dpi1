@@ -1,0 +1,9 @@
+name: tagcluster
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - ucsc-bigwigaverageoverbed
+  - bedtools
+  - ucsc-bigwigtobedgraph
