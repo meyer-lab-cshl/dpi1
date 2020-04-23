@@ -7,7 +7,7 @@ rule smoothing:
         spi="{dir}/outPooled/tc.long.spi.bed.gz"
     params:
         length=config["decomposition"]["length"],
-        count=config["decomposition"]["count"],
+        ratio=config["decomposition"]["noise_subtraction_ratio"],
         window=config["smoothing"]["gaussian_window_size_half"],
     shell:
         """
