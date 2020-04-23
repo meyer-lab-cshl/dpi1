@@ -2,7 +2,7 @@
 
 gunzip -c snakemake/outPooled/tc.spi.merged.ctssMaxCounts11.ctssMaxTpm1.bed.gz |\
     md5 > md5checkSum_snakemake
-gunzip -c rake/outPooled/tc.spi.merged.ctssMaxCounts11.ctssMaxTpm1.bed.gz | \
+gunzip -c rake/outPooled/tc.spi_merged.ctssMaxCounts11_ctssMaxTpm1.bed.gz | \
     md5 > md5checkSum_rake
 
 md5snakemake=`cat md5checkSum_snakemake`
