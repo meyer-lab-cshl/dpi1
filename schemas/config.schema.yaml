@@ -27,7 +27,7 @@ properties:
     type: object
     properties:
       noise_subtraction_ratio:
-        type: integer
+        type: number
       length:
         type: integer
       count:
