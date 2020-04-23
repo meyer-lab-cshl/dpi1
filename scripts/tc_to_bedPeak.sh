@@ -69,12 +69,4 @@ awk -v bw=${bw} -v color=${color} 'BEGIN{OFS="\t"}{
     print chrom, start, stop, name, score, strand,
           rep_start, rep_stop, color
   }
-}' | \
-> ${output}
-
-# combined strands short
-gunzip -c {input.short} >> {output.spi}.tmp
-sort -k1,1 -k2,2n {output.spi}.tmp | \
-awk 'BEGIN{{OFS="\\t"}}{{print $0,1,$3-$2",",0","}}' | \
-gzip -c > {output.spi}
-rm -f {output.spi}.tmp
+}' |  gzip -c > ${output}
