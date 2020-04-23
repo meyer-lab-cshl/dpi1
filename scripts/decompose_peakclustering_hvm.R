@@ -70,7 +70,6 @@ ctssVec2bedTable <- function(ctssVec) {
       c(chrom, start, stop, strand)
     }
   ))
-
   colnames(coords) <- c("chrom", "start", "stop", "strand")
   coords <- as.data.frame(coords, stringsAsFactors = FALSE)
   coords$start <- as.numeric(coords$start)
@@ -292,10 +291,7 @@ getCtssCountsTable <- function(bedLine, infiles, noise_subtraction_ratio = 0) {
 peakClustersFromCtssVec_print <- function(ctss, gaussian_window_size_half,
                                           bedLine, outfile) {
   ctss <- rowSums(ctss)
-  res <- peakClustersFromCtssVec(ctss,
-                                 gaussian_window_size_half=
-                                   gaussian_window_size_half,
-                                 bedLine = bedLine)
+  res <- peakClustersFromCtssVec(ctss, gaussian_window_size_half, bedLine)
   if (is.null(dim(res))) {
     write.table(bedLine, file=outfile, sep = "\t", quote = FALSE,
                 row.names = FALSE, col.names = FALSE, append=TRUE)
@@ -330,7 +326,7 @@ option_list <- list(
               transcription start sites [default: %default].",
               default=NULL),
   make_option(c("-w", "--window"), action="store",
-              dest="window", type="numeric",
+              dest="window", type="integer",
               help="Gaussian window size (0.5) [default: %default].",
               default=5),
   make_option(c("-l", "--length"), action="store",
@@ -338,7 +334,7 @@ option_list <- list(
               help="Cluster length to decompose [default: %default].",
               default=50),
   make_option(c("-r", "--ratio"), action="store",
-              dest="length", type="numeric",
+              dest="ratio", type="double",
               help="Noise substraction ratio [default: %default].",
               default=0.1),
   make_option(c("--showProgress"), action="store_true",
@@ -353,9 +349,10 @@ option_list <- list(
 )
 
 args <- parse_args(OptionParser(option_list=option_list))
+
 if (args$debug) {
     args <- list()
-    args$outfile <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.spi.bed.gz"
+    args$outfile <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.spi.bed"
     args$tagclusters <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.bed.gz"
     args$ctssprefix <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/ctssTotalCounts"
     args$window <- 5
@@ -368,6 +365,11 @@ if (args$debug) {
 ## analysis ####
 ################
 
+formated <- sapply(seq_along(args), function(x) {
+  paste(names(args)[x], ": ", args[x], sep="")
+})
+if (args$verbose) message(paste(formated, collapse="\n"))
+
 if (args$analysis == "spi") {
   if (file.exists(args$outfile)) file.remove(args$outfile)
   base <- read.table(args$tagclusters, sep = "\t", as.is = TRUE, nrow = -1)
@@ -379,7 +381,6 @@ if (args$analysis == "spi") {
   )
 
   for (i in 1:nrow(base)) {
-    cat(i, "\n")
     bedLine <- base[i, ]
     if ((bedLine$stop - bedLine$start) < args$length) {
       write.table(bedLine, file=args$outfile, sep = "\t", quote = FALSE,
