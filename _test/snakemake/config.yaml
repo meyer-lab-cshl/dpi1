@@ -1,0 +1,27 @@
+analysis: spi
+
+# Files and directories: use full file paths, do NOT use tilde expansion
+directory: _test/snakemake
+genome: _test/mouse.mm10.genome
+
+### for tag clusters
+cluster:
+  dist: 20
+  ctss_max_counts: 2
+
+### for decomposition
+decomposition:
+  noise_subtraction_ratio: 0.1
+  length: 50
+  count: 50
+  n_comp_upper_bound: 5
+
+### for smoothing, after decomposition
+smoothing:
+  gaussian_window_size_half: 5
+
+### cutoffs
+cutoff:
+  permissive: 3
+  robust: 11
+  tpm: 1
