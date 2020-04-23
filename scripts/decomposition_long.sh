@@ -29,7 +29,7 @@ if [ "${length}" = "" ]; then usage; fi
 if [ "${output}" = "" ]; then usage; fi
 
 gunzip -c ${tc} | \
-awk -v length=${length} -v count=${count} '{
-    if((($3 - $2) > length) || ($5 > count)){print}
+awk -v clength=${length} -v ccount=${counts} '{
+    if((($3 - $2) > clength) && ($5 > ccount)){print}
 }' | \
 gzip -c > ${output}

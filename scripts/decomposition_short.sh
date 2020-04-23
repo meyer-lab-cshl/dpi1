@@ -42,12 +42,22 @@ if [ "${noise}" = "" ]; then usage; fi
 if [ "${color}" = "" ]; then usage; fi
 if [ "${sign}" = "" ]; then usage; fi
 if [ "${output}" = "" ]; then usage; fi
-
 signstr="${sign}$"
 
+echo "b (ctssTotalCounts): ${b}"
+echo "t (tagcluster): ${tc}"
+echo "g (genome): ${genome}"
+echo "c (threshold_counts): ${counts}"
+echo "l (threshold_length): ${length}"
+echo "n (noise_subtraction_ratio): ${noise}"
+echo "C (color): ${color}"
+echo "s (sign): ${sign}"
+echo "o (output): ${output}"
+
+
 gunzip -c ${tc} | \
-awk -v length=${length} -v count=${count} '{
-    if((($3 - $2) <= length) || ($5 <= count)){print}
+awk -v clength=${length} -v ccount=${counts} '{
+    if((($3 - $2) <= clength) || ($5 <= ccount)){print}
 }' | \
 grep -- $signstr | \
 scripts/bed2peakBed9_with_boundaryTrimming.sh \
