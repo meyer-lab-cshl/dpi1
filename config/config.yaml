@@ -1,8 +1,11 @@
 analysis: spi
 
 # Files and directories: use full file paths, do NOT use tilde expansion
-directory: /Users/hannah/data/tss/mouse/fantom/bed/GRCm38
-genome: /Users/hannah/data/tss/mouse/fantom/bed/GRCm38/mouse.mm10.genome
+directory: _test/snakemake
+genome: _test/mouse.mm10.genome
+samples:
+  - test.1
+  - test.2
 
 ### for tag clusters
 cluster:

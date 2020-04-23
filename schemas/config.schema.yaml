@@ -11,6 +11,10 @@ properties:
     type: string
   genome:
     type: string
+  samples:
+    type: array
+    items:
+      type: string
 
   cluster:
     type: object
@@ -66,6 +70,7 @@ required:
   - directory
   - analysis
   - genome
+  - samples
   - cluster
   - decomposition
   - smoothing

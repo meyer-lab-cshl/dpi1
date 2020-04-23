@@ -1,7 +1,7 @@
 rule pool_ctss_total_counts:
     input:
         expand("{{dir}}/outCounts/{sample}.ctss.{strand}.bw",
-          sample=SAMPLE,
+          sample=config["samples"],
           strand=['fwd', 'rev']),
         genome=config["genome"]
     output:
@@ -20,7 +20,7 @@ rule pool_ctss_total_counts:
 rule pool_ctss_max_counts:
     input:
         expand("{{dir}}/outCounts/{sample}.ctss.{strand}.bw",
-          sample=SAMPLE,
+          sample=config["samples"],
           strand=['fwd', 'rev']),
         genome=config["genome"]
     output:
@@ -39,7 +39,7 @@ rule pool_ctss_max_counts:
 rule pool_ctss_max_tpm:
     input:
         expand("{{dir}}/outTpm/{sample}.ctss.{strand}.bw",
-          sample=SAMPLE,
+          sample=config["samples"],
           strand=['fwd', 'rev']),
         genome=config["genome"]
     output:

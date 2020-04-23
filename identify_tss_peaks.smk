@@ -6,9 +6,9 @@ min_version("5.14.0")
 
 ##### load config and sample sheets #####
 configfile: "config/config.yaml"
-#validate(config, schema="schemas/config.schema.yaml")
+validate(config, schema="schemas/config.schema.yaml")
 
-SAMPLE, = glob_wildcards("/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/{sample}.ctss.bed.gz")
+SAMPLE = ["test.1", "test.2"]
 
 ##### target rules #####
 def get_input(wildcards):
