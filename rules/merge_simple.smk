@@ -3,7 +3,7 @@ rule tc_long_stranded:
         tc="{dir}/outPooled/tc.long.spi.bed.gz",
         bw="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
     output:
-        bed="{dir}/outPooled/tc.long.spi.{strand}.bed.gz"
+        bed=temp("{dir}/outPooled/tc.long.spi.{strand}.bed.gz")
     conda:
         "../envs/merge_simple.yaml"
     params:

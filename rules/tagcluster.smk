@@ -3,7 +3,7 @@ rule prepare_tagcluster:
         total_counts="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
         max_counts="{dir}/outPooled/ctssMaxCounts.{strand}.bw",
     output:
-        tc="{dir}/outPooled/tc.{strand}.bed"
+        tc=temp("{dir}/outPooled/tc.{strand}.bed")
     conda:
         "../envs/tagcluster.yaml"
     wildcard_constraints:

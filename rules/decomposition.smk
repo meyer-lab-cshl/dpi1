@@ -4,7 +4,7 @@ rule decomposition_short_stranded:
         bw="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
         genome=config["genome"]
     output:
-        bw="{dir}/outPooled/tc.short.{strand}.bed",
+        bw=temp("{dir}/outPooled/tc.short.{strand}.bed")
     conda:
         "../envs/decomposition.yaml"
     params:
