@@ -25,7 +25,7 @@ if [ "${rev}" = "" ]; then usage; fi
 if [ "${output}" = "" ]; then usage; fi
 
 cat ${fwd} ${rev} | \
-sed -e 's/[:|,|..]/\t/g' | \
+sed -e 's/[:|,|..]/ /g' | \
 awk 'BEGIN{OFS="\t"} {
     print $1,$2,$3,$1":"$2".."$3","$4,$5,$4
 }' | \

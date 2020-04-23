@@ -48,6 +48,6 @@ awk -v sign=${sign} 'BEGIN{OFS="\t"} {
 }' | \
 grep -v '_' | \
 bigWigAverageOverBed ${total} /dev/stdin /dev/stdout | \
-awk '{printf "%s\t%i\\n",$1,$4}' \
+awk '{printf "%s\t%i\n",$1,$4}' \
 > ${output}
 
