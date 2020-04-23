@@ -4,6 +4,8 @@ rule prepare_tagcluster:
         max_counts="{dir}/outPooled/ctssMaxCounts.{strand}.bw",
     output:
         tc="{dir}/outPooled/tc.{strand}.bed"
+    wildcard_constraints:
+        strand="fwd|rev"
     params:
         sign=lambda wildcards: '+' if wildcards.strand == "fwd" else '-',
         thr=config["cluster"]["ctss_max_counts"],
@@ -27,7 +29,7 @@ rule combine_tagcluster:
         tc="{dir}/outPooled/tc.bed.gz"
     shell:
         """
-        scripts/combined_tagclusters.sh \
+        scripts/combine_tagclusters.sh \
             -f {input.fwd} \
             -r {input.rev} \
             -o {output.tc}
