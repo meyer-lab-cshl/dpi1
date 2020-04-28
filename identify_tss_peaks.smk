@@ -47,3 +47,6 @@ if config["analysis"] == 'spi':
     ### thresholding without decomposition
     include: "rules/thresholding_simple.smk"
 
+if config["analysis"] == 'dpi':
+    ### split long clusters into subsets
+    include: "rules/split_long_tc.smk
