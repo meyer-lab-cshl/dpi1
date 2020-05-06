@@ -8,8 +8,6 @@ min_version("5.14.0")
 configfile: "config/config.yaml"
 validate(config, schema="schemas/config.schema.yaml")
 
-SAMPLE = ["test.1", "test.2"]
-
 ##### target rules #####
 def get_input(wildcards):
     if config["analysis"] == "spi":
@@ -24,7 +22,8 @@ def get_input(wildcards):
 
 rule all:
     input:
-        get_input
+        #get_input
+        "_test/snakemake/outPooled/tc.long/aaaaa"
 
 ##### setup report #####
 #report: "report/workflow.rst"
@@ -37,16 +36,16 @@ include: "rules/pool.smk"
 ### prepare tag clusters
 include: "rules/tagcluster.smk"
 ### split tag cluster into long and short for decomposition
-include: "rules/decomposition.smk"
+include: "rules/split_tagclusters.smk"
 
 if config["analysis"] == 'spi':
-    ### simple smoothing
-    include: "rules/smooth_simple.smk"
-    ### combined long and short tag clusters
-    include: "rules/merge_simple.smk"
-    ### thresholding without decomposition
+    ### simple smoothing without decomposition
+    include: "rules/smoothing_simple.smk"
+    ### thresholding
     include: "rules/thresholding_simple.smk"
 
 if config["analysis"] == 'dpi':
-    ### split long clusters into subsets
-    include: "rules/split_long_tc.smk
+    ### decomposition and smoothing
+    include: "rules/smoothing.smk"
+    ### thresholding
+    include: "rules/thresholding.smk"
