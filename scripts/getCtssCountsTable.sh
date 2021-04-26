@@ -45,7 +45,7 @@ if [ "${input_file_list}" = "" ]; then usage; fi
 for infile in $( cat ${input_file_list} )
 do
   fname=$(basename $infile)
-  /Users/hannah/software/bigWigToBedGraph -chrom=${chrom} -start=${start} -end=${stop} ${infile} /dev/stdout \
+  bigWigToBedGraph -chrom=${chrom} -start=${start} -end=${stop} ${infile} /dev/stdout \
   | awk -v fname=$fname 'BEGIN{OFS="\t"}{for (i=$2;i<$3;i++){print fname, $1":"i".."i+1,$4}}'
 done | R --slave -e  'library(tidyr);read.table(file("stdin"),as.is=T) %>% tidyr::spread("V1", "V3", fill=0, convert=FALSE) %>% write.table(quote=F,sep="\\t",row.names=F)'
 
