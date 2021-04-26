@@ -12,16 +12,21 @@ cluster:
   dist: 20
   ctss_max_counts: 2
 
-### for decomposition
-decomposition:
+### for cluster splitting
+split:
   noise_subtraction_ratio: 0.1
   length: 50
   count: 50
   n_comp_upper_bound: 5
 
-### for smoothing, after decomposition
+### for smoothing, after splitting
 smoothing:
   gaussian_window_size_half: 5
+
+### decomposition
+decomposition:
+  chunk: 1000
+  suffix: 5
 
 ### cutoffs
 cutoff:
