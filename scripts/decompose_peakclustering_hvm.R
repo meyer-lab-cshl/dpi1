@@ -404,7 +404,6 @@ formated <- sapply(seq_along(args), function(x) {
 if (args$verbose) message(paste(formated, collapse="\n"))
 
 if (file.exists(args$outfile)) file.remove(args$outfile)
-if (file.exists(args$icafile)) file.remove(args$icafile)
 
 if (args$analysis == "spi") {
   base <- read.table(args$tagclusters, sep = "\t", as.is = TRUE, nrow = -1)
@@ -427,6 +426,7 @@ if (args$analysis == "spi") {
     peakClustersFromCtssVec_print(ctss, args$window, bedLine, args$outfile)
   }
 } else if (args$analysis == "dpi") {
+  if (file.exists(args$icafile)) file.remove(args$icafile)
   infile_ctss <- dir(path = args$path, pattern = args$pattern,
                      full.names = TRUE)
 
