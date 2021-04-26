@@ -1,4 +1,5 @@
 from snakemake.utils import validate, min_version
+import itertools
 
 ##### set minimum snakemake version #####
 min_version("5.14.0")
@@ -18,12 +19,30 @@ def get_input(wildcards):
         permissive = "{pdir}/outPooled/tc.spi.merged.ctssMaxCounts{permissive}.bed.gz".format(
             pdir=config['directory'],
             permissive=config['cutoff']['permissive'])
-    return [robust, permissive]
+        return [robust, permissive]
+    elif config["analysis"] == "dpi":
+        robust = "{pdir}/outPooled/tc.decompose_smoothing_merged.ctssMaxCounts{robust}.ctssMaxTpm{tpm}.bed.gz".format(
+            pdir=config['directory'],
+            robust=config['cutoff']['robust'],
+            tpm=config['cutoff']['tpm'])
+        permissive = "{pdir}/outPooled/tc.decompose_smoothing_merged.ctssMaxCounts{permissive}.bed.gz".format(
+            pdir=config['directory'],
+            permissive=config['cutoff']['permissive'])
+        allout = expand("{pdir}/outPooled/tc.long.decompose_smoothing.component{n}_ctss.{strand}.bedGraph.gz",
+            pdir=config['directory'],
+            strand=['fwd', 'rev'],
+            n=range(1, config['decomposition']['n_comp_upper_bound'] + 1))
+        allout.append(robust)
+        allout.append(permissive)
+        print(allout)
+        return allout
+    else:
+        raise ValueError("config['analysis'] should be 'spi' or 'dpi'; provided {}".format(config['analysis']))
 
 rule all:
     input:
-        #get_input
-        "_test/snakemake/outPooled/tc.long/aaaaa"
+        get_input
+        #"_test/snakemake/outPooled/tc.long/aaaaa"
 
 ##### setup report #####
 #report: "report/workflow.rst"
