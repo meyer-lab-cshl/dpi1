@@ -27,7 +27,7 @@ properties:
       - dist
       - ctss_max_counts
 
-  decomposition:
+  split:
     type: object
     properties:
       noise_subtraction_ratio:

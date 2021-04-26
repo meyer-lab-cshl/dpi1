@@ -49,7 +49,7 @@ rule split_long:
         ct=config["split"]["count"],
     shell:
         """
-        scripts/decomposition_long.sh \
+        scripts/split_long.sh \
             -t {input.tc} \
             -l {params.length} \
             -c {params.ct} \

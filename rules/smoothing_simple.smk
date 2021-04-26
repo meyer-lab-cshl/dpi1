@@ -8,8 +8,8 @@ rule smoothing:
     conda:
         "../envs/smooth_simple.yaml"
     params:
-        length=config["decomposition"]["length"],
-        ratio=config["decomposition"]["noise_subtraction_ratio"],
+        length=config["split"]["length"],
+        ratio=config["split"]["noise_subtraction_ratio"],
         window=config["smoothing"]["gaussian_window_size_half"],
     shell:
         """
