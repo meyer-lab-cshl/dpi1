@@ -1,1 +1,3 @@
 .snakemake
+_test/rake/out*
+_test/snakemake/out*
