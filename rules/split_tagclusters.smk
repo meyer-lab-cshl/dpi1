@@ -38,3 +38,20 @@ rule split_short_merge:
         sort -k1,1 -k2,2n | \
         gzip -c > {output.tc}
         """
+
+rule split_long:
+    input:
+        tc="{dir}/outPooled/tc.bed.gz",
+    output:
+        tc="{dir}/outPooled/tc.long.bed.gz"
+    params:
+        length=config["split"]["length"],
+        ct=config["split"]["count"],
+    shell:
+        """
+        scripts/decomposition_long.sh \
+            -t {input.tc} \
+            -l {params.length} \
+            -c {params.ct} \
+            -o {output.tc}
+        """

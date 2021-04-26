@@ -44,7 +44,7 @@ if [ "${sign}" = "" ]; then usage; fi
 if [ "${output}" = "" ]; then usage; fi
 signstr="${sign}$"
 
-echo "b (ctssTotalCounts): ${b}"
+echo "b (ctssTotalCounts): ${bw}"
 echo "t (tagcluster): ${tc}"
 echo "g (genome): ${genome}"
 echo "c (threshold_counts): ${counts}"

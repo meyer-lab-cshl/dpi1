@@ -1,4 +1,5 @@
 from snakemake.utils import validate, min_version
+import itertools
 
 ##### set minimum snakemake version #####
 min_version("6.2.0")
@@ -7,8 +8,6 @@ min_version("6.2.0")
 ##### load config and sample sheets #####
 configfile: "config/config.yaml"
 validate(config, schema="schemas/config.schema.yaml")
-
-SAMPLE = ["test.1", "test.2"]
 
 ##### target rules #####
 def get_input(wildcards):
@@ -20,11 +19,30 @@ def get_input(wildcards):
         permissive = "{pdir}/outPooled/tc.spi.merged.ctssMaxCounts{permissive}.bed.gz".format(
             pdir=config['directory'],
             permissive=config['cutoff']['permissive'])
-    return [robust, permissive]
+        return [robust, permissive]
+    elif config["analysis"] == "dpi":
+        robust = "{pdir}/outPooled/tc.decompose_smoothing_merged.ctssMaxCounts{robust}.ctssMaxTpm{tpm}.bed.gz".format(
+            pdir=config['directory'],
+            robust=config['cutoff']['robust'],
+            tpm=config['cutoff']['tpm'])
+        permissive = "{pdir}/outPooled/tc.decompose_smoothing_merged.ctssMaxCounts{permissive}.bed.gz".format(
+            pdir=config['directory'],
+            permissive=config['cutoff']['permissive'])
+        allout = expand("{pdir}/outPooled/tc.long.decompose_smoothing.component{n}_ctss.{strand}.bedGraph.gz",
+            pdir=config['directory'],
+            strand=['fwd', 'rev'],
+            n=range(1, config['decomposition']['n_comp_upper_bound'] + 1))
+        allout.append(robust)
+        allout.append(permissive)
+        print(allout)
+        return allout
+    else:
+        raise ValueError("config['analysis'] should be 'spi' or 'dpi'; provided {}".format(config['analysis']))
 
 rule all:
     input:
         get_input
+        #"_test/snakemake/outPooled/tc.long/aaaaa"
 
 ##### setup report #####
 #report: "report/workflow.rst"
@@ -36,26 +54,17 @@ include: "rules/bigwig.smk"
 include: "rules/pool.smk"
 ### prepare tag clusters
 include: "rules/tagcluster.smk"
-### short tag clusters
-include: "rules/split_short.smk"
+### split tag cluster into long and short for decomposition
+include: "rules/split_tagclusters.smk"
 
 if config["analysis"] == 'spi':
-    ### long tag clusters
-    include: "rules/split_long_spi.smk"
-    ### simple smoothing
-    include: "rules/smooth_simple.smk"
-    ### combined long and short tag clusters
-    include: "rules/merge_simple.smk"
-    ### thresholding without decomposition
+    ### simple smoothing without decomposition
+    include: "rules/smoothing_simple.smk"
+    ### thresholding
     include: "rules/thresholding_simple.smk"
 
 if config["analysis"] == 'dpi':
-    ### long tag clusters
-    include: "rules/split_long_dpi.smk"
-    ### simple smoothing
-    include: "rules/smooth_simple.smk"
-    ### combined long and short tag clusters
-    include: "rules/merge_simple.smk"
-    ### thresholding without decomposition
-    include: "rules/thresholding_simple.smk"
-
+    ### decomposition and smoothing
+    include: "rules/smoothing.smk"
+    ### thresholding
+    include: "rules/thresholding.smk"

@@ -315,6 +315,10 @@ option_list <- list(
               dest="outfile",
               type="character", help="Path the output file [default: %default].",
               default=NULL),
+  make_option(c("--icafile"), action="store",
+              dest="icafile",
+              type="character", help="Path the ica output file [default: %default].",
+              default=NULL),
   make_option(c("-c", "--tagclusters"), action="store",
               dest="tagclusters",
               type="character", help="Path to file with tag clusters to be
@@ -325,9 +329,25 @@ option_list <- list(
               type="character", help="Prefix of individual bed.gz files with
               transcription start sites [default: %default].",
               default=NULL),
+  make_option(c("--path"), action="store",
+              dest="path",
+              type="character", help=" [default: %default].",
+              default=NULL),
+  make_option(c("--exclude"), action="store",
+              dest="exclude_prefix",
+              type="character", help=" [default: %default].",
+              default=NULL),
+  make_option(c("--pattern"), action="store",
+              dest="pattern",
+              type="character", help=" [default: %default].",
+              default=NULL),
   make_option(c("-w", "--window"), action="store",
               dest="window", type="integer",
-              help="Gaussian window size (0.5) [default: %default].",
+              help="Gaussian window size [default: %default].",
+              default=5),
+  make_option(c( "--bound"), action="store",
+              dest="bound", type="integer",
+              help=" [default: %default].",
               default=5),
   make_option(c("-l", "--length"), action="store",
               dest="length", type="integer",
@@ -352,14 +372,27 @@ args <- parse_args(OptionParser(option_list=option_list))
 
 if (args$debug) {
     args <- list()
-    args$outfile <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.spi.bed"
-    args$tagclusters <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/tc.long.bed.gz"
-    args$ctssprefix <- "/Users/hannah/data/tss/mouse/fantom/bed/GRCm38/outPooled/ctssTotalCounts"
-    args$window <- 5
-    args$length <- 50
-    args$ratio <- 0.1
+    #args$outfile <- "/Users/hannah/software/dpi1/_test/snakemake/outPooled/tc.long.spi.bed"
+    #args$tagclusters <- "/Users/hannah/software/dpi1/_test/snakemake/outPooled/tc.long.bed.gz"
+    #args$ctssprefix <- "/Users/hannah/software/dpi1/_test/snakemake/outPooled/ctssTotalCounts"
+    args$outfile <- "/Users/hannah/software/dpi1/_test/snakemake/outPooled/tc.long.decompose/aaaaa.decompose_smoothing.bed"
+    args$icafile <- "/Users/hannah/software/dpi1/_test/snakemake/outPooled/tc.long.decompose/aaaaa.ica.txt"
+    args$tagclusters <- "/Users/hannah/software/dpi1/_test/snakemake/outPooled/tc.long.files/aaaaa"
+    args$path <- "/Users/hannah/software/dpi1/_test/snakemake/outCounts"
+    #args$window <- 5
+    #args$length <- 50
+    #args$ratio <- 0.1
+    args$window <- 20
+    args$length <- 100
+    args$ratio <- 0
     args$verbose <- TRUE
-    args$analysis <- 'spi'
+    args$bound <- 5
+    args$pattern <- ".bw$"
+    args$exclude_prefix <- NA
+    verbose = TRUE
+    #args$analysis <- 'spi'
+    args$analysis <- 'dpi'
+
 }
 ################
 ## analysis ####
@@ -370,8 +403,10 @@ formated <- sapply(seq_along(args), function(x) {
 })
 if (args$verbose) message(paste(formated, collapse="\n"))
 
+if (file.exists(args$outfile)) file.remove(args$outfile)
+if (file.exists(args$icafile)) file.remove(args$icafile)
+
 if (args$analysis == "spi") {
-  if (file.exists(args$outfile)) file.remove(args$outfile)
   base <- read.table(args$tagclusters, sep = "\t", as.is = TRUE, nrow = -1)
   colnames(base) <- c("chrom", "start", "stop", "name", "score", "strand")
 
@@ -382,73 +417,58 @@ if (args$analysis == "spi") {
 
   for (i in 1:nrow(base)) {
     bedLine <- base[i, ]
+    if (args$verbose) message("#", paste(bedLine, collapse = "\t"))
     if ((bedLine$stop - bedLine$start) < args$length) {
       write.table(bedLine, file=args$outfile, sep = "\t", quote = FALSE,
                   row.names = FALSE, col.names = FALSE, append=TRUE)
       next
     }
-    if (args$verbose) {
-      cat("#", paste(bedLine, collapse = "\t"), "\n")
-    }
     ctss <- getCtssCountsTable(bedLine, infile_ctss, args$ratio)
     peakClustersFromCtssVec_print(ctss, args$window, bedLine, args$outfile)
   }
 } else if (args$analysis == "dpi") {
-  main_dpi <- function(infile_base, path, pattern, exclude_prefix = NA,
-                       gaussian_window_size_half = 20,
-                       n.comp.upper_bound = Inf,
-                       length_to_decompose = 200,
-                       noise_subtraction_ratio = 0,
-                       verbose = TRUE) {
-    infile_ctss <- dir(path = path, pattern = pattern, full.names = TRUE)
+  infile_ctss <- dir(path = args$path, pattern = args$pattern,
+                     full.names = TRUE)
 
-    ### special file exclusion
-    if (!is.na(exclude_prefix)) {
-      infile_ctss <- grep(exclude_prefix, infile_ctss, value = TRUE,
-                          invert = TRUE)
+  ### special file exclusion
+  if (!is.na(args$exclude_prefix)) {
+    infile_ctss <- grep(args$exclude_prefix, infile_ctss, value = TRUE,
+                        invert = TRUE)
+  }
+
+  base <- read.table(args$tagclusters, sep = "\t", as.is = TRUE, nrow = -1)
+  colnames(base) <- c("chrom", "start", "stop", "name", "score", "strand")
+
+  for (i in 1:nrow(base)) {
+    bedLine <- base[i, ]
+    if (args$verbose) message("#", paste(bedLine, collapse = "\t"))
+    if ((bedLine$stop - bedLine$start) < args$length) {
+      write.table(bedLine, file=args$outfile, sep = "\t", quote = FALSE,
+                  row.names = FALSE, col.names = FALSE, append=TRUE)
+      next
     }
+    ctss <- getCtssCountsTable(bedLine, infile_ctss,
+                               noise_subtraction_ratio = args$ratio)
+    ica <- myFastICA(ctss, verbose = args$verbose,
+                     n.comp.upper_bound = args$bound)
 
-    base <- read.table(infile_base, sep = "\t", as.is = TRUE, nrow = -1)
-
-    colnames(base) <- c("chrom", "start", "stop", "name", "score", "strand")
-
-    for (i in 1:nrow(base)) {
-      bedLine <- base[i, ]
-      if (verbose) {
-        cat("#", paste(bedLine, collapse = "\t"), "\n")
-      }
-      if ((bedLine$stop - bedLine$start) < length_to_decompose) {
-        write.table(bedLine, file=args$outfile, sep = "\t", quote = FALSE,
-                    row.names = FALSE, col.names = FALSE)
-        next
-      }
-      ctss <- getCtssCountsTable(bedLine, infile_ctss,
-        noise_subtraction_ratio = noise_subtraction_ratio
-      )
-      ica <- myFastICA(ctss,
-        verbose = verbose,
-        n.comp.upper_bound = n.comp.upper_bound
-      )
-
-      if (length(ica) == 0) {
-        peakClustersFromCtssVec_print(ctss, gaussian_window_size_half, bedLine)
+    if (length(ica) == 0) {
+      peakClustersFromCtssVec_print(ctss, args$window, bedLine, args$outfile)
+    } else {
+      res <- peakClustersDecomposedCtss(ica,
+                                        gaussian_window_size_half = args$window,
+                                        bedLine)
+      if (is.null(dim(res))) {
+        peakClustersFromCtssVec_print(ctss, args$window, bedLine, args$outfile)
       } else {
-        res <- peakClustersDecomposedCtss(
-          ica,
-          gaussian_window_size_half = gaussian_window_size_half,
-          bedLine
-        )
-        if (is.null(dim(res))) {
-          peakClustersFromCtssVec_print(ctss, gaussian_window_size_half, bedLine)
-        } else {
-          write.table(res, sep = "\t", quote = FALSE, row.names = FALSE,
-                      col.names = FALSE)
-        }
-        write.table(ica$rescaleS, sep = "\t", quote = FALSE, row.names = FALSE,
-                    col.names = FALSE)
+        write.table(res, file=args$outfile, sep = "\t", quote = FALSE,
+                    row.names = FALSE, col.names = FALSE, append=TRUE)
       }
+      write.table(ica$rescaleS, file=args$icafile, sep = "\t", quote = FALSE,
+                  row.names = TRUE, col.names = FALSE, append=TRUE)
     }
   }
 } else {
   stop ("Analysis type", args$analysis, "not found, has to be spi or dpi")
 }
+
