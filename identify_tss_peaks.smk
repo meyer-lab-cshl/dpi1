@@ -1,7 +1,7 @@
 from snakemake.utils import validate, min_version
 
 ##### set minimum snakemake version #####
-min_version("5.14.0")
+min_version("6.2.0")
 
 
 ##### load config and sample sheets #####
@@ -36,10 +36,22 @@ include: "rules/bigwig.smk"
 include: "rules/pool.smk"
 ### prepare tag clusters
 include: "rules/tagcluster.smk"
-### split tag cluster into long and short for decomposition
-include: "rules/decomposition.smk"
+### short tag clusters
+include: "rules/split_short.smk"
 
 if config["analysis"] == 'spi':
+    ### long tag clusters
+    include: "rules/split_long_spi.smk"
+    ### simple smoothing
+    include: "rules/smooth_simple.smk"
+    ### combined long and short tag clusters
+    include: "rules/merge_simple.smk"
+    ### thresholding without decomposition
+    include: "rules/thresholding_simple.smk"
+
+if config["analysis"] == 'dpi':
+    ### long tag clusters
+    include: "rules/split_long_dpi.smk"
     ### simple smoothing
     include: "rules/smooth_simple.smk"
     ### combined long and short tag clusters
