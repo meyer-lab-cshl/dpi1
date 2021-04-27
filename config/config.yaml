@@ -1,3 +1,4 @@
+# Type of analysis: spi/dpi
 analysis: dpi
 
 # Files and directories: use full file paths, do NOT use tilde expansion
