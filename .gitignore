@@ -1,3 +1,4 @@
 .snakemake
 _test/rake/out*
 _test/snakemake/out*
+_test/snakemake/logs/
