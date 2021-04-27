@@ -4,6 +4,7 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
+  - r-base
   - ucsc-bigwigtobedgraph
   - r-tidyr
   - r-optparse

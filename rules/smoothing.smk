@@ -22,6 +22,8 @@ rule decompose:
     output:
         bed="{dir}/outPooled/tc.long.decompose/{suffix}.decompose_smoothing.bed",
         ica="{dir}/outPooled/tc.long.decompose/{suffix}.ica.txt"
+    conda:
+        "../envs/smooth_simple.yaml"
     params:
         pattern=".bw$",
         length=config["split"]["length"],
