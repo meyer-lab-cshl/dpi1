@@ -66,8 +66,9 @@ The remaining parameters are the default parameters from the original
 implementation.
 
 3. Activate your snakemake environment
-4. Run (local machine, using 1 core)
-    % snakemake -s identify_tss_peaks.smk --cores 1 --use-conda
+4. Run (local machine, using 1 core):
+
+    ```snakemake -s identify_tss_peaks.smk --cores 1 --use-conda```
 
 
 Author
