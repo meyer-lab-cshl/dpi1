@@ -24,9 +24,9 @@ rule decompose:
         ica="{dir}/outPooled/tc.long.decompose/{suffix}.ica.txt"
     params:
         pattern=".bw$",
-        length=config["decomposition"]["length"],
-        ratio=config["decomposition"]["noise_subtraction_ratio"],
-        bound=config["decomposition"]["n_comp_upper_bound"],
+        length=config["split"]["length"],
+        ratio=config["split"]["noise_subtraction_ratio"],
+        bound=config["split"]["n_comp_upper_bound"],
         window=config["smoothing"]["gaussian_window_size_half"],
     shell:
         """
