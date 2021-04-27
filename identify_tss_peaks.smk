@@ -31,7 +31,7 @@ def get_input(wildcards):
         allout = expand("{pdir}/outPooled/tc.long.decompose_smoothing.component{n}_ctss.{strand}.bedGraph.gz",
             pdir=config['directory'],
             strand=['fwd', 'rev'],
-            n=range(1, config['decomposition']['n_comp_upper_bound'] + 1))
+            n=range(1, config['split']['n_comp_upper_bound'] + 1))
         allout.append(robust)
         allout.append(permissive)
         print(allout)

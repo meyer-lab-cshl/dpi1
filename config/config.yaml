@@ -1,4 +1,4 @@
-analysis: spi
+analysis: dpi
 
 # Files and directories: use full file paths, do NOT use tilde expansion
 directory: _test/snakemake
@@ -22,11 +22,6 @@ split:
 ### for smoothing, after splitting
 smoothing:
   gaussian_window_size_half: 5
-
-### decomposition
-decomposition:
-  chunk: 1000
-  suffix: 5
 
 ### cutoffs
 cutoff:

@@ -72,6 +72,6 @@ required:
   - genome
   - samples
   - cluster
-  - decomposition
+  - split
   - smoothing
   - cutoff
