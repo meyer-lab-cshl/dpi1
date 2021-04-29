@@ -1,4 +1,4 @@
-rule split_short_stranded:
+rule split_short:
     input:
         tc="{dir}/outPooled/tc.bed.gz",
         bw="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
@@ -26,7 +26,7 @@ rule split_short_stranded:
             -s {params.sign} \
             -o {output.bw}
         """
-rule split_short_merge:
+rule merge_short:
     input:
         fwd="{dir}/outPooled/tc.short.fwd.bed",
         rev="{dir}/outPooled/tc.short.rev.bed",

@@ -16,8 +16,9 @@ checkpoint split:
         """
 
 
-rule decompose:
+rule decompose_long:
     input:
+        alltc="{dir}/outPooled/tc.long.bed.gz",
         tc="{dir}/outPooled/tc.long.files/{suffix}",
     output:
         bed="{dir}/outPooled/tc.long.decompose/{suffix}.decompose_smoothing.bed",
@@ -54,7 +55,7 @@ def preparesmooth_input(wildcards):
            pdir=wildcards.dir,
            suffix=suffix)
 
-rule preparesmooth:
+rule preparesmooth_long:
     input:
         preparesmooth_input
     output:
@@ -65,7 +66,7 @@ rule preparesmooth:
         sort -k 1,1 -k 2,2n  > {output.bed}
         """
 
-rule smooth:
+rule smooth_long:
     input:
         bed="{dir}/outPooled/tc.long.decompose_smoothing.bed.tmp"
     output:
@@ -92,7 +93,7 @@ rule smooth:
                     cols.append(colors[cols[5]])
                     op.writelines("\t".join(cols) + '\n')
 
-rule strand:
+rule stranded_long:
     input:
         bed="{dir}/outPooled/tc.long.decompose_smoothing.bed.gz",
         counts="{dir}/outPooled/ctssTotalCounts.{strand}.bw"
@@ -111,7 +112,7 @@ rule strand:
             -o {output}
         """
 
-rule merge_strand:
+rule merge_long:
     input:
         fwd="{dir}/outPooled/tc.long.decompose_smoothing_merged.fwd.bed",
         rev="{dir}/outPooled/tc.long.decompose_smoothing_merged.rev.bed",
@@ -147,7 +148,7 @@ def ica_input(wildcards):
            pdir=wildcards.dir,
            suffix=suffix)
 
-rule ica:
+rule format_components:
     input:
         ica_input
     output:

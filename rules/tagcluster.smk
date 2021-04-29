@@ -1,4 +1,4 @@
-rule prepare_tagcluster:
+rule create_stranded_tagcluster:
     input:
         total_counts="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
         max_counts="{dir}/outPooled/ctssMaxCounts.{strand}.bw",
@@ -23,7 +23,7 @@ rule prepare_tagcluster:
             -o {output.tc}
         """
 
-rule combine_tagcluster:
+rule combine_stranded_tagcluster:
     input:
         fwd="{dir}/outPooled/tc.fwd.bed",
         rev="{dir}/outPooled/tc.rev.bed"
