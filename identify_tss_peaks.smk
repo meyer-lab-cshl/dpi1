@@ -34,7 +34,6 @@ def get_input(wildcards):
             n=range(1, config['split']['n_comp_upper_bound'] + 1))
         allout.append(robust)
         allout.append(permissive)
-        print(allout)
         return allout
     else:
         raise ValueError("config['analysis'] should be 'spi' or 'dpi'; provided {}".format(config['analysis']))
