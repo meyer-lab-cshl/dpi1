@@ -3,7 +3,9 @@ rule create_stranded_tagcluster:
         total_counts="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
         max_counts="{dir}/outPooled/ctssMaxCounts.{strand}.bw",
     output:
-        tc=temp("{dir}/outPooled/tc.{strand}.bed")
+        tc="{dir}/outPooled/tc.{strand}.bed"
+    resources:
+        mem_mb = 4000
     conda:
         "../envs/tagcluster.yaml"
     wildcard_constraints:
@@ -29,6 +31,8 @@ rule combine_stranded_tagcluster:
         rev="{dir}/outPooled/tc.rev.bed"
     output:
         tc="{dir}/outPooled/tc.bed.gz"
+    resources:
+        mem_mb = 4000
     shell:
         """
         scripts/combine_tagclusters.sh \

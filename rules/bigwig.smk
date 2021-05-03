@@ -7,6 +7,8 @@ rule prepare_bigwig_counts:
         "{dir}/outCounts/{sample}.ctss.rev.bw"
     conda:
         "../envs/bigwig.yaml"
+    resources:
+        mem_mb = 4000
     shell:
         """
         scripts/ctssBed2bigWig.sh \
@@ -24,6 +26,8 @@ rule prepare_bigwig_tpm:
         "{dir}/outTpm/{sample}.ctss.rev.bw"
     conda:
         "../envs/bigwig.yaml"
+    resources:
+        mem_mb = 4000
     shell:
         """
         scripts/ctssBed2TpmBigWig.sh \

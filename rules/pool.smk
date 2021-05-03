@@ -1,11 +1,13 @@
 rule pool_ctss_total_counts:
     input:
         expand("{{dir}}/outCounts/{sample}.ctss.{strand}.bw",
-          sample=config["samples"],
+          sample=samples['sample'],
           strand=['fwd', 'rev']),
         genome=config["genome"]
     output:
         total="{dir}/outPooled/ctssTotalCounts.{strand}.bw"
+    resources:
+        mem_mb = 10000
     conda:
         "../envs/pool.yaml"
     shell:
@@ -20,11 +22,13 @@ rule pool_ctss_total_counts:
 rule pool_ctss_max_counts:
     input:
         expand("{{dir}}/outCounts/{sample}.ctss.{strand}.bw",
-          sample=config["samples"],
+          sample=samples['sample'],
           strand=['fwd', 'rev']),
         genome=config["genome"]
     output:
         max="{dir}/outPooled/ctssMaxCounts.{strand}.bw"
+    resources:
+        mem_mb = 10000
     conda:
         "../envs/pool.yaml"
     shell:
@@ -39,11 +43,13 @@ rule pool_ctss_max_counts:
 rule pool_ctss_max_tpm:
     input:
         expand("{{dir}}/outTpm/{sample}.ctss.{strand}.bw",
-          sample=config["samples"],
+          sample=samples['sample'],
           strand=['fwd', 'rev']),
         genome=config["genome"]
     output:
         max="{dir}/outPooled/ctssMaxTpm.{strand}.bw"
+    resources:
+        mem_mb = 10000
     conda:
         "../envs/pool.yaml"
     shell:

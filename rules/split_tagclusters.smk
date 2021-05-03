@@ -4,7 +4,7 @@ rule split_short:
         bw="{dir}/outPooled/ctssTotalCounts.{strand}.bw",
         genome=config["genome"]
     output:
-        bw=temp("{dir}/outPooled/tc.short.{strand}.bed")
+        bw="{dir}/outPooled/tc.short.{strand}.bed"
     conda:
         "../envs/split.yaml"
     params:
