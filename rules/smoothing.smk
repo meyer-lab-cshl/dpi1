@@ -10,7 +10,8 @@ checkpoint split:
         # unzip and split file into small chunks; named by `suffix_length` letters
         # to form the suffix of the file name; `lines` per file; prefix `tc`
         gunzip -c {input.alltc} | \
-        gsplit \
+        # for mac needs to be gsplit -> symbolic link split -> gsplit
+        split \
             --suffix-length=5 \
             --lines=1000  - {wildcards.dir}/outPooled/tc.long.files/
         """
@@ -24,7 +25,7 @@ rule decompose_long:
         bed="{dir}/outPooled/tc.long.decompose/{suffix}.decompose_smoothing.bed",
         ica="{dir}/outPooled/tc.long.decompose/{suffix}.ica.txt"
     conda:
-        "../envs/smooth_simple.yaml"
+        "../envs/smooth.yaml"
     params:
         pattern=".bw$",
         length=config["split"]["length"],

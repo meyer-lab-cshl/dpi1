@@ -6,7 +6,7 @@ rule smoothing:
     output:
         spi="{dir}/outPooled/tc.long.spi.bed.gz"
     conda:
-        "../envs/smooth_simple.yaml"
+        "../envs/smooth.yaml"
     params:
         length=config["split"]["length"],
         ratio=config["split"]["noise_subtraction_ratio"],
