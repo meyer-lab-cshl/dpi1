@@ -1,13 +1,16 @@
 from snakemake.utils import validate, min_version
 import itertools
+import pandas as pd
 
 ##### set minimum snakemake version #####
-min_version("6.2.0")
+min_version("5.20.0")
 
 
 ##### load config and sample sheets #####
 configfile: "config/config.yaml"
 validate(config, schema="schemas/config.schema.yaml")
+
+samples = pd.read_table(config["samples"],sep="\t")
 
 ##### target rules #####
 def get_input(wildcards):
